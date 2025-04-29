@@ -1,0 +1,357 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Status {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+  code              String              @unique
+
+  user              Users[]
+  StudentRegister   StudentRegister[]
+  SchoolYear        SchoolYear[]
+  Rules             Rules[]
+  Subjects          Subjects[]
+  SubjectsLevel     SubjectsLevel[]
+  LevelTarif        LevelTarif[]
+  StudentPayment    StudentPayment[]
+  Test              Test[]
+  SalaryPayment     SalaryPayment[]
+  TypePayment TypePayment[]
+}
+
+model Users {
+  id                  Int                 @id @default(autoincrement())
+  uuid                String              @unique
+  firstName           String
+  lastName            String?
+  email               String              @unique
+  address             String?
+  phoneNumber1        String
+  phoneNumber2        String?
+  password            String?
+  isFullTime          Boolean
+  netSalaryPerMonth   Float?
+  netSalaryPerHour    Float?
+  monthlyWorkingHour  Float?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime?           @updatedAt
+  statusId            Int
+  status              Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  tokens              Token[]
+  Level               Level[]
+  UsersRules          UsersRules[]
+  SubjectsLevel       SubjectsLevel[]
+  updatedAssiduities  Assiduity[]         @relation("UpdatorAssiduities")
+  redactedAssiduities Assiduity[]         @relation("RedactorAssiduities")
+  redactorTest        Test[]              @relation("RedactorTest")
+  SalaryPayment       SalaryPayment[]
+}
+
+model SalaryPayment {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  reference         String              @unique
+  parentPaymentId   Int?
+  salaryPayment     SalaryPayment?     @relation("ParrentChildPayment",fields: [parentPaymentId], references: [id], onDelete: Cascade)
+  childPayments     SalaryPayment[]    @relation("ParrentChildPayment")
+  teacherId         Int
+  teacher           Users            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  amountPayable     Float
+  amountPaid        Float
+  amountRemaining   Float
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
+  schoolYearId      Int
+  schoolYear        SchoolYear          @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+}
+
+model Token {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  userId     Int?
+  user       Users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+}
+
+model Menu {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+  path              String              @unique
+
+  MenuRules         MenuRules[]
+}
+
+model Rules {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  MenuRules         MenuRules[]
+  UsersRules        UsersRules[]
+}
+
+model MenuRules {
+  id              Int                @id @default(autoincrement())
+  menuId          Int
+  menu            Menu               @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  ruleId          Int
+  rules           Rules              @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  privilege       Json
+}
+
+model UsersRules {
+  id              Int                @id @default(autoincrement())
+  userId          Int
+  users           Users              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ruleId          Int
+  rules           Rules              @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+}
+
+model SchoolYear {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  startedYear       String
+  endYear           String              @unique
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  StudentRegister   StudentRegister[]
+  StudentPayment    StudentPayment[]
+  Assiduity         Assiduity[]
+  Test              Test[]
+  SalaryPayment     SalaryPayment[]
+}
+
+model SchoolPeriod {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+
+  Assiduity         Assiduity[]
+  Test              Test[]
+}
+
+model Level {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+  teacherInChargeId Int
+  user              Users?     @relation(fields: [teacherInChargeId], references: [id], onDelete: Cascade)
+
+  StudentRegister   StudentRegister[]
+  SubjectsLevel     SubjectsLevel[]
+  LevelTarif        LevelTarif[]
+  Assiduity         Assiduity[]
+  Test              Test[]
+}
+
+model Students {
+  id                      Int                 @id @default(autoincrement())
+  uuid                    String              @unique
+  firstName               String
+  lastName                String?
+  email                   String?              @unique
+  studentAddress          String?
+  phoneNumber1            String?
+  phoneNumber2            String?
+  fatherFullName          String?
+  fatherPhoneNumber1      String?
+  fatherPhoneNumber2      String?
+  motherFullName          String?
+  motherPhoneNumber1      String?
+  motherPhoneNumber2      String?
+  parrentsAddress         String?
+  guarantorFullName       String?
+  guarantorPhoneNumber1   String?
+  guarantorPhoneNumber2   String?
+  guarantorAddress        String?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime?           @updatedAt
+
+  StudentRegister         StudentRegister[]
+  StudentPayment          StudentPayment[]
+  StudentsAssiduity       StudentsAssiduity[]
+  TestDetails             TestDetails[]
+}
+
+model StudentRegister {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  studentId         Int
+  student           Students            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  levelId           Int
+  level             Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  createdAt         DateTime            @default(now())
+  description       String?
+  schoolYearId      Int
+  schoolYear        SchoolYear          @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+}
+
+model Subjects {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  SubjectsLevel     SubjectsLevel[]
+  Assiduity         Assiduity[]
+  Test              Test[]
+}
+
+model SubjectsLevel {
+  id                Int                 @id @default(autoincrement())
+  levelId           Int
+  level             Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  subjectId         Int
+  subjects          Subjects            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacherId         Int
+  users             Users               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  coefficient       Int
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+}
+
+model TypePayment {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+  code              String?             @unique
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  LevelTarif        LevelTarif[]
+  StudentPayment    StudentPayment[]
+}
+
+model LevelTarif {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  levelId           Int
+  level             Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  typePaymentId     Int
+  typePayment       TypePayment         @relation(fields: [typePaymentId], references: [id], onDelete: Cascade)
+  amount            Float
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+}
+
+model StudentPayment {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  reference         String              @unique
+  parentPaymentId   Int?
+  studentPayment    StudentPayment?     @relation("ParrentChildPayment",fields: [parentPaymentId], references: [id], onDelete: Cascade)
+  childPayments     StudentPayment[]    @relation("ParrentChildPayment")
+  studentId         Int
+  students          Students            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  typePaymentId     Int
+  typePayment       TypePayment         @relation(fields: [typePaymentId], references: [id], onDelete: Cascade)
+  amountPayable     Float
+  amountPaid        Float
+  amountRemaining   Float
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
+  schoolYearId      Int
+  schoolYear        SchoolYear          @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+}
+
+model Assiduity {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  isSchoolAssiduity Boolean
+  redactorId        Int
+  redactor          Users               @relation("RedactorAssiduities", fields: [redactorId], references: [id], onDelete: Cascade)
+  levelId           Int
+  level             Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  subjectId         Int
+  subjects          Subjects            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  schoolYearId      Int
+  schoolYear        SchoolYear          @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+  schoolPeriodId    Int
+  schoolPeriod      SchoolPeriod        @relation(fields: [schoolPeriodId], references: [id], onDelete: Cascade)
+  isArrived         Boolean
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
+  updatorManagerId  Int?
+  updator           Users?               @relation("UpdatorAssiduities", fields: [updatorManagerId], references: [id], onDelete: Cascade)
+
+  StudentsAssiduity StudentsAssiduity[]
+}
+
+model StudentsAssiduity {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  assiduityId       Int
+  assiduity         Assiduity          @relation(fields: [assiduityId], references: [id], onDelete: Cascade)
+  studentId         Int
+  students          Students            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  isPresent         Boolean
+  isBeLate          Boolean
+}
+
+model TestType {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  designation       String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
+
+  Test              Test[]
+}
+
+model Test {
+  id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
+  testTypeId        Int
+  testType          TestType            @relation(fields: [testTypeId], references: [id], onDelete: Cascade)
+  schoolYearId      Int
+  schoolYear        SchoolYear          @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+  schoolPeriodId    Int
+  schoolPeriod      SchoolPeriod        @relation(fields: [schoolPeriodId], references: [id], onDelete: Cascade)
+  levelId           Int
+  level             Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  subjectId         Int
+  subject           Subjects            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  redactorId        Int
+  redactor          Users               @relation("RedactorTest", fields: [redactorId], references: [id], onDelete: Cascade)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime?           @updatedAt
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  TestDetails       TestDetails[]
+}
+
+model TestDetails {
+  id             Int             @id @default(autoincrement())
+  uuid           String          @unique
+  testId         Int
+  test           Test            @relation(fields: [testId], references: [id], onDelete: Cascade)
+  studentId      Int
+  student        Students        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  score          Float
+}
