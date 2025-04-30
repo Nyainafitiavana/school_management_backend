@@ -15,7 +15,7 @@ export class UserService {
     private helper: Helper,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<Users> {
+  async create(createUserDto: CreateUserDto): Promise<ExecuteResponse> {
     const findUserEmail: Users = await this.prisma.users.findUnique({
       where: { email: createUserDto.email },
     });
@@ -30,7 +30,7 @@ export class UserService {
 
     const hashedPassword: string = await this.helper.hashPassword('1234');
 
-    const createUser: Users = await this.prisma.users.create({
+    await this.prisma.users.create({
       data: {
         ...createUserDto,
         password: hashedPassword,
@@ -39,9 +39,7 @@ export class UserService {
       },
     });
 
-    delete createUser.id;
-    delete createUser.password;
-    return createUser;
+    return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }
 
   async findAll(
@@ -162,9 +160,7 @@ export class UserService {
     uuid: string,
     updateUserDto: UpdateUserDto,
   ): Promise<ExecuteResponse> {
-    const findUser: Users = await this.prisma.users.findUnique({
-      where: { uuid: uuid },
-    });
+    const findUser: Users = await this.findOne(uuid);
 
     await this.prisma.users.update({
       where: {
@@ -179,9 +175,7 @@ export class UserService {
   }
 
   async remove(uuid: string): Promise<ExecuteResponse> {
-    const findUser: Users = await this.prisma.users.findUnique({
-      where: { uuid: uuid },
-    });
+    const findUser: Users = await this.findOne(uuid);
     const findStatusByCode: Status = await this.prisma.status.findUnique({
       where: { code: STATUS.DELETED },
     });

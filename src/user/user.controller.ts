@@ -32,7 +32,8 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<void> {
     try {
-      const user: Users = await this.userService.create(createUserDto);
+      const user: ExecuteResponse =
+        await this.userService.create(createUserDto);
 
       res.status(HttpStatus.OK).json(user);
     } catch (error) {

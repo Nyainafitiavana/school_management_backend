@@ -106,12 +106,13 @@ model Rules {
 
 model MenuRules {
   id              Int                @id @default(autoincrement())
+  uuid            String             @unique
   menuId          Int
   menu            Menu               @relation(fields: [menuId], references: [id], onDelete: Cascade)
   ruleId          Int
   rules           Rules              @relation(fields: [ruleId], references: [id], onDelete: Cascade)
 
-  privilege       Json
+  privilege       String
 }
 
 model UsersRules {
