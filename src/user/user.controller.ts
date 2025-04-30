@@ -13,12 +13,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, CreateUserRulesDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NextFunction, Response, Request } from 'express';
 import { AuthGuard } from '../auth/auth.guards';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
 import { Users } from '@prisma/client';
+import { IUserRules } from './IUsers';
 
 @Controller('/api/users')
 export class UserController {
@@ -80,6 +81,7 @@ export class UserController {
   ): Promise<void> {
     try {
       const user: Users = await this.userService.findOne(uuid);
+      delete user.id;
 
       res.status(HttpStatus.OK).json(user);
     } catch (error) {
@@ -117,6 +119,54 @@ export class UserController {
     try {
       const deleted: ExecuteResponse = await this.userService.remove(uuid);
 
+      res.status(HttpStatus.OK).json(deleted);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/rules')
+  async createMenuRule(
+    @Body() data: CreateUserRulesDto[],
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ): Promise<void> {
+    try {
+      const userRules: ExecuteResponse =
+        await this.userService.createUserRules(data);
+
+      res.status(HttpStatus.OK).json(userRules);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/:uuid/rules')
+  async findAllUserRules(
+    @Param('uuid') uuid: string,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ): Promise<void> {
+    try {
+      const userRules: IUserRules[] =
+        await this.userService.findAllUserRules(uuid);
+      res.status(HttpStatus.OK).json({ data: userRules });
+    } catch (error) {
+      next(error);
+    }
+  }
+  @UseGuards(AuthGuard)
+  @Delete('/rules/:uuid')
+  async deleteUserRules(
+    @Param('uuid') uuid: string,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ): Promise<void> {
+    try {
+      const deleted: ExecuteResponse =
+        await this.userService.deleteUserRule(uuid);
       res.status(HttpStatus.OK).json(deleted);
     } catch (error) {
       next(error);

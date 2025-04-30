@@ -31,3 +31,11 @@ export class CreateUserDto {
   @IsNumber()
   public monthlyWorkingHour?: number;
 }
+
+export class CreateUserRulesDto {
+  @IsString()
+  public userId: string;
+
+  @IsString()
+  public ruleId: string;
+}

@@ -117,6 +117,7 @@ model MenuRules {
 
 model UsersRules {
   id              Int                @id @default(autoincrement())
+  uuid            String             @unique
   userId          Int
   users           Users              @relation(fields: [userId], references: [id], onDelete: Cascade)
   ruleId          Int

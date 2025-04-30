@@ -1,12 +1,23 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, CreateUserRulesDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Status, Users } from '@prisma/client';
+import {
+  Menu,
+  MenuRules,
+  Prisma,
+  Rules,
+  Status,
+  Users,
+  UsersRules,
+} from '@prisma/client';
 import { CustomException } from '../utils/ExeptionCustom';
 import Helper from '../utils/helper';
 import { MESSAGE, STATUS } from '../utils/constant';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
+import { CreateMenuRuleDto } from '../rules/dto/create-rule.dto';
+import { IMenuRules } from '../rules/MenuRules.interface';
+import { IUserRules } from './IUsers';
 
 @Injectable()
 export class UserService {
@@ -102,6 +113,28 @@ export class UserService {
             uuid: true,
           },
         },
+        UsersRules: {
+          select: {
+            uuid: true,
+            rules: {
+              select: {
+                uuid: true,
+                designation: true,
+                MenuRules: {
+                  select: {
+                    uuid: true,
+                    menu: {
+                      select: {
+                        uuid: true,
+                        designation: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     };
 
@@ -143,6 +176,28 @@ export class UserService {
             uuid: true,
           },
         },
+        UsersRules: {
+          select: {
+            uuid: true,
+            rules: {
+              select: {
+                uuid: true,
+                designation: true,
+                MenuRules: {
+                  select: {
+                    uuid: true,
+                    menu: {
+                      select: {
+                        uuid: true,
+                        designation: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -150,7 +205,6 @@ export class UserService {
       throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
     }
 
-    delete user.id;
     delete user.password;
     delete user.statusId;
     return user;
@@ -189,6 +243,82 @@ export class UserService {
       },
     });
 
+    return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
+  }
+
+  async createUserRules(
+    bodyRequest: CreateUserRulesDto[],
+  ): Promise<ExecuteResponse> {
+    for (const data of bodyRequest) {
+      const findRule: Rules = await this.prisma.rules.findUnique({
+        where: { uuid: data.ruleId },
+      });
+
+      if (!findRule) {
+        throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+      }
+
+      const findUser: Users = await this.findOne(data.userId);
+      //Find if exist rule for the current user
+      const findExist: UsersRules = await this.prisma.usersRules.findFirst({
+        where: {
+          userId: findUser.id,
+          ruleId: findRule.id,
+        },
+      });
+
+      if (findExist) {
+        throw new CustomException(
+          `Le rôle "${findRule.designation}" est déjà ajouté pour cet utilisateur.`,
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      await this.prisma.usersRules.create({
+        data: {
+          userId: findUser.id,
+          ruleId: findRule.id,
+          uuid: await this.helper.generateUuid(),
+        },
+      });
+    }
+
+    return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
+  }
+
+  async findAllUserRules(userId: string): Promise<IUserRules[]> {
+    await this.findOne(userId);
+
+    return this.prisma.usersRules.findMany({
+      where: {
+        users: {
+          uuid: userId,
+        },
+      },
+      select: {
+        uuid: true,
+        rules: {
+          select: {
+            uuid: true,
+            designation: true,
+          },
+        },
+      },
+    });
+  }
+
+  async deleteUserRule(uuid: string): Promise<ExecuteResponse> {
+    const userRules: UsersRules = await this.prisma.usersRules.findUnique({
+      where: { uuid: uuid },
+    });
+
+    if (!userRules) {
+      throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+    }
+
+    await this.prisma.usersRules.delete({
+      where: { id: userRules.id },
+    });
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }
 }
