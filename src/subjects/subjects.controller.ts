@@ -89,7 +89,7 @@ export class SubjectsController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch(':uuid')
+  @Patch('/:uuid')
   async update(
     @Param('uuid') uuid: string,
     @Body() updateSubjectDto: UpdateSubjectDto,
@@ -109,7 +109,7 @@ export class SubjectsController {
   }
 
   @UseGuards(AuthGuard)
-  @Delete(':uuid')
+  @Delete('/:uuid')
   async remove(
     @Param('uuid') uuid: string,
     @Res() res: Response,

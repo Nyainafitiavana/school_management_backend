@@ -90,7 +90,7 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch(':uuid')
+  @Patch('/:uuid')
   async update(
     @Param('uuid') uuid: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -110,7 +110,7 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Delete(':uuid')
+  @Delete('/:uuid')
   async remove(
     @Param('uuid') uuid: string,
     @Res() res: Response,
