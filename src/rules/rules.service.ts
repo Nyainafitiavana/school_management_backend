@@ -93,7 +93,10 @@ export class RulesService {
     });
 
     if (!rule) {
-      throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+      throw new CustomException(
+        `Rule ID ${uuid} not found in database.`,
+        HttpStatus.CONFLICT,
+      );
     }
 
     return rule;
@@ -145,7 +148,10 @@ export class RulesService {
       });
 
       if (!findMenu) {
-        throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+        throw new CustomException(
+          `Menu ID ${data.menuId} not found in database.`,
+          HttpStatus.CONFLICT,
+        );
       }
 
       const findRule: Rules = await this.findOne(data.ruleId);
@@ -215,6 +221,7 @@ export class RulesService {
           select: {
             uuid: true,
             designation: true,
+            path: true,
           },
         },
       },
@@ -227,7 +234,10 @@ export class RulesService {
     });
 
     if (!menuRules) {
-      throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+      throw new CustomException(
+        `Menu rule ID ${uuid} not found in database.`,
+        HttpStatus.CONFLICT,
+      );
     }
 
     await this.prisma.menuRules.delete({

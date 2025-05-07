@@ -24,6 +24,7 @@ model Status {
   Test              Test[]
   SalaryPayment     SalaryPayment[]
   TypePayment TypePayment[]
+  Level Level[]
 }
 
 model Users {
@@ -152,8 +153,10 @@ model Level {
   id                Int                 @id @default(autoincrement())
   uuid              String              @unique
   designation       String
-  teacherInChargeId Int
+  teacherInChargeId Int?
   user              Users?     @relation(fields: [teacherInChargeId], references: [id], onDelete: Cascade)
+  statusId          Int
+  status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
 
   StudentRegister   StudentRegister[]
   SubjectsLevel     SubjectsLevel[]
@@ -220,12 +223,13 @@ model Subjects {
 
 model SubjectsLevel {
   id                Int                 @id @default(autoincrement())
+  uuid              String              @unique
   levelId           Int
   level             Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
   subjectId         Int
   subjects          Subjects            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  teacherId         Int
-  users             Users               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacherId         Int?
+  users             Users?               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   coefficient       Int
   statusId          Int
   status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
@@ -248,7 +252,7 @@ model TypePayment {
 model LevelTarif {
   id                Int                 @id @default(autoincrement())
   uuid              String              @unique
-  levelId           Int
+  levelId             Int
   level             Level               @relation(fields: [levelId], references: [id], onDelete: Cascade)
   typePaymentId     Int
   typePayment       TypePayment         @relation(fields: [typePaymentId], references: [id], onDelete: Cascade)

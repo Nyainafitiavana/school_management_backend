@@ -2,21 +2,11 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto, CreateUserRulesDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  Menu,
-  MenuRules,
-  Prisma,
-  Rules,
-  Status,
-  Users,
-  UsersRules,
-} from '@prisma/client';
+import { Prisma, Rules, Status, Users, UsersRules } from '@prisma/client';
 import { CustomException } from '../utils/ExeptionCustom';
 import Helper from '../utils/helper';
 import { MESSAGE, STATUS } from '../utils/constant';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
-import { CreateMenuRuleDto } from '../rules/dto/create-rule.dto';
-import { IMenuRules } from '../rules/MenuRules.interface';
 import { IUserRules } from './IUsers';
 
 @Injectable()
@@ -120,17 +110,6 @@ export class UserService {
               select: {
                 uuid: true,
                 designation: true,
-                MenuRules: {
-                  select: {
-                    uuid: true,
-                    menu: {
-                      select: {
-                        uuid: true,
-                        designation: true,
-                      },
-                    },
-                  },
-                },
               },
             },
           },
@@ -164,6 +143,7 @@ export class UserService {
   }
 
   async findOne(uuid: string): Promise<Users> {
+    console.log(uuid);
     const user: Users = await this.prisma.users.findUnique({
       where: {
         uuid: uuid,
@@ -183,17 +163,6 @@ export class UserService {
               select: {
                 uuid: true,
                 designation: true,
-                MenuRules: {
-                  select: {
-                    uuid: true,
-                    menu: {
-                      select: {
-                        uuid: true,
-                        designation: true,
-                      },
-                    },
-                  },
-                },
               },
             },
           },
@@ -202,7 +171,10 @@ export class UserService {
     });
 
     if (!user) {
-      throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+      throw new CustomException(
+        `User ID ${uuid} not found in database.`,
+        HttpStatus.CONFLICT,
+      );
     }
 
     delete user.password;
@@ -313,7 +285,10 @@ export class UserService {
     });
 
     if (!userRules) {
-      throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+      throw new CustomException(
+        `UserRule ID ${uuid} not found in database.`,
+        HttpStatus.CONFLICT,
+      );
     }
 
     await this.prisma.usersRules.delete({

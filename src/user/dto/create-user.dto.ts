@@ -1,19 +1,29 @@
-import { IsBoolean, IsEmail, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
+  @IsNotEmpty()
   public firstName: string;
 
   @IsString()
-  public lastName: string;
+  public lastName?: string;
 
   @IsEmail()
+  @IsNotEmpty()
   public email: string;
 
   @IsString()
+  @IsNotEmpty()
   public address: string;
 
   @IsString()
+  @IsNotEmpty()
   public phoneNumber1: string;
 
   @IsString()
@@ -34,8 +44,10 @@ export class CreateUserDto {
 
 export class CreateUserRulesDto {
   @IsString()
+  @IsNotEmpty()
   public userId: string;
 
   @IsString()
+  @IsNotEmpty()
   public ruleId: string;
 }
