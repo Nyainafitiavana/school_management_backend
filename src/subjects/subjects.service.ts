@@ -123,7 +123,7 @@ export class SubjectsService {
       where: { code: STATUS.DELETED },
     });
 
-    await this.prisma.level.update({
+    await this.prisma.subjects.update({
       where: {
         uuid: findSubject.uuid,
       },
