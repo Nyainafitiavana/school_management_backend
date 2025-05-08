@@ -30,8 +30,8 @@ model Status {
 model Users {
   id                  Int                 @id @default(autoincrement())
   uuid                String              @unique
-  firstName           String
-  lastName            String?
+  firstName           String?
+  lastName            String
   email               String              @unique
   address             String?
   phoneNumber1        String
