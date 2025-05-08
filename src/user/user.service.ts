@@ -158,7 +158,6 @@ export class UserService {
         },
         UsersRules: {
           select: {
-            uuid: true,
             rules: {
               select: {
                 uuid: true,
@@ -273,6 +272,18 @@ export class UserService {
           select: {
             uuid: true,
             designation: true,
+            MenuRules: {
+              select: {
+                menu: {
+                  select: {
+                    uuid: true,
+                    designation: true,
+                    path: true,
+                    code: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

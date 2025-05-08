@@ -89,6 +89,7 @@ model Menu {
   id                Int                 @id @default(autoincrement())
   uuid              String              @unique
   designation       String
+  code              String?              @unique
   path              String              @unique
 
   MenuRules         MenuRules[]
