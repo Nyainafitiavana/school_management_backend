@@ -138,9 +138,9 @@ export class LevelService {
     updateLevelDto: UpdateLevelDto,
   ): Promise<ExecuteResponse> {
     const findLevel: Level = await this.findOne(uuid);
-    const findUser: Users = await this.userService.findOne(
-      updateLevelDto.teacherInChargeId,
-    );
+    const findTeacher: Users = updateLevelDto.teacherInChargeId
+      ? await this.userService.findOne(updateLevelDto.teacherInChargeId)
+      : null;
 
     delete updateLevelDto.teacherInChargeId;
     await this.prisma.level.update({
@@ -149,7 +149,7 @@ export class LevelService {
       },
       data: {
         ...updateLevelDto,
-        teacherInChargeId: findUser.id,
+        teacherInChargeId: findTeacher ? findTeacher.id : null,
       },
     });
 
@@ -223,14 +223,26 @@ export class LevelService {
 
     return false;
   }
+
   async findAllSubjectLevel(
     levelId: string,
     statusCode: string,
-  ): Promise<ISubjectLevel[]> {
+    limit: number = null,
+    page: number = null,
+    keyword: string,
+  ): Promise<Paginate<SubjectsLevel[]>> {
     const level: Level = await this.findOne(levelId);
-
-    return this.prisma.subjectsLevel.findMany({
+    const offset: number = await this.helper.calculateOffset(limit, page);
+    const query: Prisma.SubjectsLevelFindManyArgs = {
+      take: limit,
+      skip: offset,
       where: {
+        subjects: {
+          designation: {
+            contains: keyword,
+            mode: 'insensitive',
+          },
+        },
         levelId: level.id,
         status: {
           code: statusCode === STATUS.ACTIVE ? STATUS.ACTIVE : STATUS.DELETED,
@@ -256,10 +268,18 @@ export class LevelService {
           select: {
             designation: true,
             uuid: true,
+            code: true,
           },
         },
       },
-    });
+    };
+
+    const [data, count] = await this.prisma.$transaction([
+      this.prisma.subjectsLevel.findMany(query),
+      this.prisma.subjectsLevel.count({ where: query.where }),
+    ]);
+
+    return { data: data, totalRows: count, page: page };
   }
 
   async findOneSubjectLevel(uuid: string): Promise<SubjectsLevel> {

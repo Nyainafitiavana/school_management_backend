@@ -37,11 +37,7 @@ export class SubjectsService {
     keyword: string,
     status: string,
   ): Promise<Paginate<Subjects[]>> {
-    const offset: number = await this.helper.calculateOffset(limit, page);
-
     const query: Prisma.SubjectsFindManyArgs = {
-      take: limit,
-      skip: offset,
       where: {
         designation: {
           contains: keyword,
@@ -63,6 +59,12 @@ export class SubjectsService {
         },
       },
     };
+
+    if (limit && page) {
+      const offset: number = await this.helper.calculateOffset(limit, page);
+      query.take = limit;
+      query.skip = offset;
+    }
 
     const [data, count] = await this.prisma.$transaction([
       this.prisma.subjects.findMany(query),

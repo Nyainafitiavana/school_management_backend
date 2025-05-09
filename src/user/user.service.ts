@@ -49,11 +49,7 @@ export class UserService {
     keyword: string,
     status: string,
   ): Promise<Paginate<Users[]>> {
-    const offset: number = await this.helper.calculateOffset(limit, page);
-
     const query: Prisma.UsersFindManyArgs = {
-      take: limit,
-      skip: offset,
       where: {
         OR: [
           {
@@ -117,6 +113,11 @@ export class UserService {
       },
     };
 
+    if (limit && page) {
+      const offset: number = await this.helper.calculateOffset(limit, page);
+      query.take = limit;
+      query.skip = offset;
+    }
     const [data, count] = await this.prisma.$transaction([
       this.prisma.users.findMany(query),
       this.prisma.users.count({ where: query.where }),

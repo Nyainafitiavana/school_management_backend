@@ -18,8 +18,7 @@ import { UpdateLevelDto, UpdateSubjectsLevelDto } from './dto/update-level.dto';
 import { AuthGuard } from '../auth/auth.guards';
 import { NextFunction, Request, Response } from 'express';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
-import { Level } from '@prisma/client';
-import { ISubjectLevel } from './subjectLevel.interface';
+import { Level, SubjectsLevel } from '@prisma/client';
 
 @Controller('/api/level')
 export class LevelController {
@@ -151,11 +150,22 @@ export class LevelController {
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
+      const limit: number = Number(req.query.limit);
+      const page: number = Number(req.query.page);
+      const keyword: string = req.query.value
+        ? (req.query.value as string)
+        : '';
       const status: string = req.query.status
         ? (req.query.status as string)
         : '';
-      const result: ISubjectLevel[] =
-        await this.levelService.findAllSubjectLevel(uuid, status);
+      const result: Paginate<SubjectsLevel[]> =
+        await this.levelService.findAllSubjectLevel(
+          uuid,
+          status,
+          limit,
+          page,
+          keyword,
+        );
 
       res.status(HttpStatus.OK).json(result);
     } catch (error) {

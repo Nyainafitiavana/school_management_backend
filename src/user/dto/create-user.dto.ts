@@ -8,11 +8,10 @@ import {
 
 export class CreateUserDto {
   @IsString()
-  @IsNotEmpty()
   public firstName: string;
 
   @IsString()
-  public lastName?: string;
+  public lastName: string;
 
   @IsEmail()
   @IsNotEmpty()
