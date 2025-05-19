@@ -41,11 +41,7 @@ export class RolesService {
     keyword: string,
     status: string,
   ): Promise<Paginate<Roles[]>> {
-    const offset: number = await this.helper.calculateOffset(limit, page);
-
     const query: Prisma.RolesFindManyArgs = {
-      take: limit,
-      skip: offset,
       where: {
         designation: {
           contains: keyword,
@@ -67,6 +63,12 @@ export class RolesService {
         },
       },
     };
+
+    if (limit && page) {
+      const offset: number = await this.helper.calculateOffset(limit, page);
+      query.take = limit;
+      query.skip = offset;
+    }
 
     const [data, count] = await this.prisma.$transaction([
       this.prisma.roles.findMany(query),
