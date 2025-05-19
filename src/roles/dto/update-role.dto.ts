@@ -1,13 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateRuleDto } from './create-rule.dto';
 import { IsJSON, IsNotEmpty, IsString } from 'class-validator';
+import { CreateRoleDto } from './create-role.dto';
 
-export class UpdateRuleDto extends PartialType(CreateRuleDto) {}
+export class UpdateRoleDto extends PartialType(CreateRoleDto) {}
 
-export class UpdateMenuRulePrivilegeDto {
+export class UpdateMenuRolePrivilegeDto {
   @IsString()
   @IsNotEmpty()
-  public menuRuleId: string;
+  public menuRoleId: string;
 
   @IsString()
   @IsJSON()

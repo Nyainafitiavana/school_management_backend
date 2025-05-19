@@ -41,12 +41,12 @@ export class CreateUserDto {
   public monthlyWorkingHour?: number;
 }
 
-export class CreateUserRulesDto {
+export class CreateUserRolesDto {
   @IsString()
   @IsNotEmpty()
   public userId: string;
 
   @IsString()
   @IsNotEmpty()
-  public ruleId: string;
+  public roleId: string;
 }

@@ -12,34 +12,34 @@ import {
   HttpStatus,
   Req,
 } from '@nestjs/common';
-import { RulesService } from './rules.service';
-import { CreateMenuRuleDto, CreateRuleDto } from './dto/create-rule.dto';
+import { RolesService } from './roles.service';
+import { CreateMenuRoleDto, CreateRoleDto } from './dto/create-role.dto';
 import {
-  UpdateMenuRulePrivilegeDto,
-  UpdateRuleDto,
-} from './dto/update-rule.dto';
+  UpdateMenuRolePrivilegeDto,
+  UpdateRoleDto,
+} from './dto/update-role.dto';
 import { AuthGuard } from '../auth/auth.guards';
 import { NextFunction, Request, Response } from 'express';
-import { Rules } from '@prisma/client';
+import { Roles } from '@prisma/client';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
-import { IMenuRules } from './MenuRules.interface';
+import { IMenuRoles } from './MenuRoles.interface';
 
-@Controller('/api/rules')
-export class RulesController {
-  constructor(private readonly rulesService: RulesService) {}
+@Controller('/api/roles')
+export class RolesController {
+  constructor(private readonly rolesService: RolesService) {}
 
   @UseGuards(AuthGuard)
   @Post()
   async create(
     @Res() res: Response,
     @Next() next: NextFunction,
-    @Body() createRuleDto: CreateRuleDto,
+    @Body() createRoleDto: CreateRoleDto,
   ): Promise<void> {
     try {
-      const rule: ExecuteResponse =
-        await this.rulesService.create(createRuleDto);
+      const role: ExecuteResponse =
+        await this.rolesService.create(createRoleDto);
 
-      res.status(HttpStatus.OK).json(rule);
+      res.status(HttpStatus.OK).json(role);
     } catch (error) {
       next(error);
     }
@@ -62,14 +62,14 @@ export class RulesController {
         ? (req.query.status as string)
         : '';
 
-      const rules: Paginate<Rules[]> = await this.rulesService.findAll(
+      const roles: Paginate<Roles[]> = await this.rolesService.findAll(
         limit,
         page,
         keyword,
         status,
       );
 
-      res.status(HttpStatus.OK).json(rules);
+      res.status(HttpStatus.OK).json(roles);
     } catch (error) {
       next(error);
     }
@@ -83,9 +83,9 @@ export class RulesController {
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const rule: Rules = await this.rulesService.findOne(uuid);
-      delete rule.id;
-      res.status(HttpStatus.OK).json(rule);
+      const role: Roles = await this.rolesService.findOne(uuid);
+      delete role.id;
+      res.status(HttpStatus.OK).json(role);
     } catch (error) {
       next(error);
     }
@@ -95,14 +95,14 @@ export class RulesController {
   @Patch('/:uuid')
   async update(
     @Param('uuid') uuid: string,
-    @Body() updateRuleDto: UpdateRuleDto,
+    @Body() updateRoleDto: UpdateRoleDto,
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const updated: ExecuteResponse = await this.rulesService.update(
+      const updated: ExecuteResponse = await this.rolesService.update(
         uuid,
-        updateRuleDto,
+        updateRoleDto,
       );
 
       res.status(HttpStatus.OK).json(updated);
@@ -119,7 +119,7 @@ export class RulesController {
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const deleted: ExecuteResponse = await this.rulesService.remove(uuid);
+      const deleted: ExecuteResponse = await this.rolesService.remove(uuid);
 
       res.status(HttpStatus.OK).json(deleted);
     } catch (error) {
@@ -129,16 +129,16 @@ export class RulesController {
 
   @UseGuards(AuthGuard)
   @Post('/menu')
-  async createMenuRule(
-    @Body() data: CreateMenuRuleDto[],
+  async createMenuRole(
+    @Body() data: CreateMenuRoleDto[],
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const menuRule: ExecuteResponse =
-        await this.rulesService.createMenuRule(data);
+      const menuRole: ExecuteResponse =
+        await this.rolesService.createMenuRole(data);
 
-      res.status(HttpStatus.OK).json(menuRule);
+      res.status(HttpStatus.OK).json(menuRole);
     } catch (error) {
       next(error);
     }
@@ -146,16 +146,16 @@ export class RulesController {
 
   @UseGuards(AuthGuard)
   @Patch('/menu/privilege')
-  async updateMenuRulePrivilege(
-    @Body() data: UpdateMenuRulePrivilegeDto[],
+  async updateMenuRolePrivilege(
+    @Body() data: UpdateMenuRolePrivilegeDto[],
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const menuRule: ExecuteResponse =
-        await this.rulesService.updateMenuRulePrivilege(data);
+      const menuRole: ExecuteResponse =
+        await this.rolesService.updateMenuRolePrivilege(data);
 
-      res.status(HttpStatus.OK).json(menuRule);
+      res.status(HttpStatus.OK).json(menuRole);
     } catch (error) {
       next(error);
     }
@@ -163,15 +163,15 @@ export class RulesController {
 
   @UseGuards(AuthGuard)
   @Get('/:uuid/menu')
-  async findAllMenuRules(
+  async findAllMenuRoles(
     @Param('uuid') uuid: string,
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const menuRule: IMenuRules[] =
-        await this.rulesService.findAllMenuRule(uuid);
-      res.status(HttpStatus.OK).json({ data: menuRule });
+      const menuRole: IMenuRoles[] =
+        await this.rolesService.findAllMenuRole(uuid);
+      res.status(HttpStatus.OK).json({ data: menuRole });
     } catch (error) {
       next(error);
     }
@@ -179,14 +179,14 @@ export class RulesController {
 
   @UseGuards(AuthGuard)
   @Delete('/menu/:uuid')
-  async deleteMenuRules(
+  async deleteMenuRoles(
     @Param('uuid') uuid: string,
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
       const deleted: ExecuteResponse =
-        await this.rulesService.deleteMenuRule(uuid);
+        await this.rolesService.deleteMenuRole(uuid);
       res.status(HttpStatus.OK).json(deleted);
     } catch (error) {
       next(error);

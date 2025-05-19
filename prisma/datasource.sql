@@ -12,15 +12,15 @@ VALUES
     (8, 'eedc0eaa-e2d6-4fcf-84dc-d958a0ec5b1b', 'Payé', 'PAY'),
     (9, 'd96bdd31-8305-460c-a5e5-8e12f593ae23', 'Expulsé', 'EXP');
 
----insert default rules----
-INSERT INTO public."Rules"
+---insert default roles----
+INSERT INTO public."Roles"
 (id, "uuid", designation, statusId)
 VALUES
     (1, '38bee17b-6fa7-49d9-9cf0-e3fb5e50190b', 'Proviseur', 1),
     (2, '3a8e81ec-c48f-4dc0-8e20-ed657436d2c8', 'Surveillant générale', 1),
     (3, '8fea52d2-f3ba-4dea-ad60-8dd9d09665fc', 'Surveillant', 1),
-    (4, '8fea52d2-f3ba-4dea-ad60-8dd9d09665fc', 'Enseignant', 1);
-ALTER SEQUENCE public."Rules_id_seq"
+    (4, '6a920897-98bd-4c7b-96cc-fadab75371b5', 'Enseignant', 1);
+ALTER SEQUENCE public."Roles_id_seq"
 	RESTART 5;
 
 ---insert default user----
@@ -30,13 +30,13 @@ VALUES(1, 'fa3784d6-8f72-4ab1-a476-0d954bf7c3ea', 'FITAHIANTSOA', 'Ny Aina Fitia
 ALTER SEQUENCE public."Users_id_seq"
 	RESTART 2;
 
----insert default user rules----
-INSERT INTO public."UsersRules"
-(id, "userId", "ruleId")
+---insert default user roles----
+INSERT INTO public."UsersRoles"
+(id, uuid, "userId", "roleId")
 VALUES
-    (1, 1, 1),
-    (2, 1, 4);
-ALTER SEQUENCE public."UsersRules_id_seq"
+    (1, '9c744ac3-b89f-466c-81e3-d4d95492bec4', 1, 1),
+    (2, '96b2fd55-795f-4f24-9756-b54088e45321', 1, 4);
+ALTER SEQUENCE public."UsersRoles_id_seq"
 	RESTART 3;
 
 ---insert all menu---
@@ -52,18 +52,18 @@ VALUES
 ALTER SEQUENCE public."Menu_id_seq"
 	RESTART 7;
 
----insert default menu rules---
-INSERT INTO public."MenuRules"
-(id, "menuId", "ruleId", privilege)
+---insert default menu roles---
+INSERT INTO public."MenuRoles"
+(id, "uuid", "menuId", "roleId", privilege)
 VALUES
-    (1, 1, 1, '[1,2,3,4]'),
-    (2, 2, 1, '[1,2,3,4]'),
-    (3, 3, 1, '[1,2,3,4]'),
-    (4, 4, 1, '[1,2,3,4]'),
-    (5, 5, 1, '[1,2,3,4]'),
-    (6, 6, 1, '[1,2,3,4]'),
-    (7, 2, 4, '[1,2,3,4]');
-ALTER SEQUENCE public."MenuRules_id_seq"
+    (1, '449ac99f-9bbf-47ce-a8f9-14a9c754143d', 1, 1, '[1,2,3,4]'),
+    (2, '9a7efeaf-69d6-402d-9d3b-69b659da71f9', 2, 1, '[1,2,3,4]'),
+    (3, '9f8106c6-5f9d-4ca2-8eab-1ea6a4f5e4ac', 3, 1, '[1,2,3,4]'),
+    (4, '91856d1d-bd97-4562-9b7c-452048186dba', 4, 1, '[1,2,3,4]'),
+    (5, '170f0255-4f88-4a47-b9e1-fa028476ab77', 5, 1, '[1,2,3,4]'),
+    (6, 'c4257d56-71e5-427b-bf06-ed817513b1b4', 6, 1, '[1,2,3,4]'),
+    (7, '00d062df-a3e3-41d0-8edb-bdad4534b9e1', 2, 4, '[1,2,3,4]');
+ALTER SEQUENCE public."MenuRoles_id_seq"
 	RESTART 8;
 
 ---insert default school period---

@@ -1,13 +1,13 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto, CreateUserRulesDto } from './dto/create-user.dto';
+import { CreateUserDto, CreateUserRolesDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Rules, Status, Users, UsersRules } from '@prisma/client';
+import { Prisma, Roles, Status, Users, UsersRoles } from '@prisma/client';
 import { CustomException } from '../utils/ExeptionCustom';
 import Helper from '../utils/helper';
 import { MESSAGE, STATUS } from '../utils/constant';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
-import { IUserRules } from './IUsers';
+import { IUserRoles } from './IUsers';
 
 @Injectable()
 export class UserService {
@@ -99,10 +99,10 @@ export class UserService {
             uuid: true,
           },
         },
-        UsersRules: {
+        UsersRoles: {
           select: {
             uuid: true,
-            rules: {
+            roles: {
               select: {
                 uuid: true,
                 designation: true,
@@ -144,7 +144,6 @@ export class UserService {
   }
 
   async findOne(uuid: string): Promise<Users> {
-    console.log(uuid);
     const user: Users = await this.prisma.users.findUnique({
       where: {
         uuid: uuid,
@@ -157,9 +156,9 @@ export class UserService {
             uuid: true,
           },
         },
-        UsersRules: {
+        UsersRoles: {
           select: {
-            rules: {
+            roles: {
               select: {
                 uuid: true,
                 designation: true,
@@ -218,38 +217,41 @@ export class UserService {
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }
 
-  async createUserRules(
-    bodyRequest: CreateUserRulesDto[],
+  async createUserRoles(
+    bodyRequest: CreateUserRolesDto[],
   ): Promise<ExecuteResponse> {
     for (const data of bodyRequest) {
-      const findRule: Rules = await this.prisma.rules.findUnique({
-        where: { uuid: data.ruleId },
+      const findRole: Roles = await this.prisma.roles.findUnique({
+        where: { uuid: data.roleId },
       });
 
-      if (!findRule) {
-        throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
+      if (!findRole) {
+        throw new CustomException(
+          `Role ID ${data.roleId} not found in database.`,
+          HttpStatus.CONFLICT,
+        );
       }
 
       const findUser: Users = await this.findOne(data.userId);
-      //Find if exist rule for the current user
-      const findExist: UsersRules = await this.prisma.usersRules.findFirst({
+      //Find if exist role for the current user
+      const findExist: UsersRoles = await this.prisma.usersRoles.findFirst({
         where: {
           userId: findUser.id,
-          ruleId: findRule.id,
+          roleId: findRole.id,
         },
       });
 
       if (findExist) {
         throw new CustomException(
-          `Le rôle "${findRule.designation}" est déjà ajouté pour cet utilisateur.`,
+          `Le rôle "${findRole.designation}" est déjà ajouté pour cet utilisateur.`,
           HttpStatus.CONFLICT,
         );
       }
 
-      await this.prisma.usersRules.create({
+      await this.prisma.usersRoles.create({
         data: {
           userId: findUser.id,
-          ruleId: findRule.id,
+          roleId: findRole.id,
           uuid: await this.helper.generateUuid(),
         },
       });
@@ -258,10 +260,10 @@ export class UserService {
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }
 
-  async findAllUserRules(userId: string): Promise<IUserRules[]> {
+  async findAllUserRoles(userId: string): Promise<IUserRoles[]> {
     await this.findOne(userId);
 
-    return this.prisma.usersRules.findMany({
+    return this.prisma.usersRoles.findMany({
       where: {
         users: {
           uuid: userId,
@@ -269,11 +271,11 @@ export class UserService {
       },
       select: {
         uuid: true,
-        rules: {
+        roles: {
           select: {
             uuid: true,
             designation: true,
-            MenuRules: {
+            MenuRoles: {
               select: {
                 menu: {
                   select: {
@@ -291,20 +293,20 @@ export class UserService {
     });
   }
 
-  async deleteUserRule(uuid: string): Promise<ExecuteResponse> {
-    const userRules: UsersRules = await this.prisma.usersRules.findUnique({
+  async deleteUserRole(uuid: string): Promise<ExecuteResponse> {
+    const userRoles: UsersRoles = await this.prisma.usersRoles.findUnique({
       where: { uuid: uuid },
     });
 
-    if (!userRules) {
+    if (!userRoles) {
       throw new CustomException(
-        `UserRule ID ${uuid} not found in database.`,
+        `UserRole ID ${uuid} not found in database.`,
         HttpStatus.CONFLICT,
       );
     }
 
-    await this.prisma.usersRules.delete({
-      where: { id: userRules.id },
+    await this.prisma.usersRoles.delete({
+      where: { id: userRoles.id },
     });
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }

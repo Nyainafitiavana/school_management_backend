@@ -1,32 +1,32 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { CreateMenuRuleDto, CreateRuleDto } from './dto/create-rule.dto';
+import { CreateMenuRoleDto, CreateRoleDto } from './dto/create-role.dto';
 import {
-  UpdateMenuRulePrivilegeDto,
-  UpdateRuleDto,
-} from './dto/update-rule.dto';
-import { Menu, MenuRules, Prisma, Rules, Status } from '@prisma/client';
+  UpdateMenuRolePrivilegeDto,
+  UpdateRoleDto,
+} from './dto/update-role.dto';
+import { Menu, MenuRoles, Prisma, Roles, Status } from '@prisma/client';
 import { MESSAGE, STATUS } from '../utils/constant';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
 import { CustomException } from '../utils/ExeptionCustom';
 import { PrismaService } from '../prisma/prisma.service';
 import Helper from '../utils/helper';
-import { IMenuRules } from './MenuRules.interface';
+import { IMenuRoles } from './MenuRoles.interface';
 
 @Injectable()
-export class RulesService {
+export class RolesService {
   constructor(
     private prisma: PrismaService,
     private helper: Helper,
   ) {}
 
-  async create(createRuleDto: CreateRuleDto): Promise<ExecuteResponse> {
+  async create(createRoleDto: CreateRoleDto): Promise<ExecuteResponse> {
     const findStatusByCode: Status = await this.prisma.status.findUnique({
       where: { code: STATUS.ACTIVE },
     });
 
-    await this.prisma.rules.create({
+    await this.prisma.roles.create({
       data: {
-        ...createRuleDto,
+        ...createRoleDto,
         statusId: findStatusByCode.id,
         uuid: await this.helper.generateUuid(),
       },
@@ -40,10 +40,10 @@ export class RulesService {
     page: number = null,
     keyword: string,
     status: string,
-  ): Promise<Paginate<Rules[]>> {
+  ): Promise<Paginate<Roles[]>> {
     const offset: number = await this.helper.calculateOffset(limit, page);
 
-    const query: Prisma.RulesFindManyArgs = {
+    const query: Prisma.RolesFindManyArgs = {
       take: limit,
       skip: offset,
       where: {
@@ -69,15 +69,15 @@ export class RulesService {
     };
 
     const [data, count] = await this.prisma.$transaction([
-      this.prisma.rules.findMany(query),
-      this.prisma.rules.count({ where: query.where }),
+      this.prisma.roles.findMany(query),
+      this.prisma.roles.count({ where: query.where }),
     ]);
 
     return { data: data, totalRows: count, page: page };
   }
 
-  async findOne(uuid: string): Promise<Rules> {
-    const rule: Rules = await this.prisma.rules.findUnique({
+  async findOne(uuid: string): Promise<Roles> {
+    const role: Roles = await this.prisma.roles.findUnique({
       where: {
         uuid: uuid,
       },
@@ -92,28 +92,28 @@ export class RulesService {
       },
     });
 
-    if (!rule) {
+    if (!role) {
       throw new CustomException(
-        `Rule ID ${uuid} not found in database.`,
+        `Role ID ${uuid} not found in database.`,
         HttpStatus.CONFLICT,
       );
     }
 
-    return rule;
+    return role;
   }
 
   async update(
     uuid: string,
-    updateRuleDto: UpdateRuleDto,
+    updateRoleDto: UpdateRoleDto,
   ): Promise<ExecuteResponse> {
-    const findRule: Rules = await this.findOne(uuid);
+    const findRole: Roles = await this.findOne(uuid);
 
-    await this.prisma.rules.update({
+    await this.prisma.roles.update({
       where: {
-        uuid: findRule.uuid,
+        uuid: findRole.uuid,
       },
       data: {
-        ...updateRuleDto,
+        ...updateRoleDto,
       },
     });
 
@@ -121,15 +121,15 @@ export class RulesService {
   }
 
   async remove(uuid: string): Promise<ExecuteResponse> {
-    const findRule: Rules = await this.findOne(uuid);
+    const findRole: Roles = await this.findOne(uuid);
 
     const findStatusByCode: Status = await this.prisma.status.findUnique({
       where: { code: STATUS.DELETED },
     });
 
-    await this.prisma.rules.update({
+    await this.prisma.roles.update({
       where: {
-        uuid: findRule.uuid,
+        uuid: findRole.uuid,
       },
       data: {
         statusId: findStatusByCode.id,
@@ -139,8 +139,8 @@ export class RulesService {
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }
 
-  async createMenuRule(
-    bodyRequest: CreateMenuRuleDto[],
+  async createMenuRole(
+    bodyRequest: CreateMenuRoleDto[],
   ): Promise<ExecuteResponse> {
     for (const data of bodyRequest) {
       const findMenu: Menu = await this.prisma.menu.findUnique({
@@ -154,12 +154,12 @@ export class RulesService {
         );
       }
 
-      const findRule: Rules = await this.findOne(data.ruleId);
-      //Find if exist menu for the current rule
-      const findExist: MenuRules = await this.prisma.menuRules.findFirst({
+      const findRole: Roles = await this.findOne(data.roleId);
+      //Find if exist menu for the current role
+      const findExist: MenuRoles = await this.prisma.menuRoles.findFirst({
         where: {
           menuId: findMenu.id,
-          ruleId: findRule.id,
+          roleId: findRole.id,
         },
       });
 
@@ -170,10 +170,10 @@ export class RulesService {
         );
       }
 
-      await this.prisma.menuRules.create({
+      await this.prisma.menuRoles.create({
         data: {
           menuId: findMenu.id,
-          ruleId: findRule.id,
+          roleId: findRole.id,
           privilege: data.privilege,
           uuid: await this.helper.generateUuid(),
         },
@@ -183,20 +183,20 @@ export class RulesService {
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }
 
-  async updateMenuRulePrivilege(
-    bodyRequest: UpdateMenuRulePrivilegeDto[],
+  async updateMenuRolePrivilege(
+    bodyRequest: UpdateMenuRolePrivilegeDto[],
   ): Promise<ExecuteResponse> {
     for (const data of bodyRequest) {
-      const menuRule: MenuRules = await this.prisma.menuRules.findUnique({
-        where: { uuid: data.menuRuleId },
+      const menuRole: MenuRoles = await this.prisma.menuRoles.findUnique({
+        where: { uuid: data.menuRoleId },
       });
 
-      if (!menuRule) {
+      if (!menuRole) {
         throw new CustomException(MESSAGE.ID_NOT_FOUND, HttpStatus.CONFLICT);
       }
 
-      await this.prisma.menuRules.update({
-        where: { id: menuRule.id },
+      await this.prisma.menuRoles.update({
+        where: { id: menuRole.id },
         data: {
           privilege: data.privilege,
         },
@@ -206,13 +206,13 @@ export class RulesService {
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }
 
-  async findAllMenuRule(ruleId: string): Promise<IMenuRules[]> {
-    await this.findOne(ruleId);
+  async findAllMenuRole(roleId: string): Promise<IMenuRoles[]> {
+    await this.findOne(roleId);
 
-    return this.prisma.menuRules.findMany({
+    return this.prisma.menuRoles.findMany({
       where: {
-        rules: {
-          uuid: ruleId,
+        roles: {
+          uuid: roleId,
         },
       },
       select: {
@@ -228,20 +228,20 @@ export class RulesService {
     });
   }
 
-  async deleteMenuRule(uuid: string): Promise<ExecuteResponse> {
-    const menuRules: MenuRules = await this.prisma.menuRules.findUnique({
+  async deleteMenuRole(uuid: string): Promise<ExecuteResponse> {
+    const menuRoles: MenuRoles = await this.prisma.menuRoles.findUnique({
       where: { uuid: uuid },
     });
 
-    if (!menuRules) {
+    if (!menuRoles) {
       throw new CustomException(
-        `Menu rule ID ${uuid} not found in database.`,
+        `Menu role ID ${uuid} not found in database.`,
         HttpStatus.CONFLICT,
       );
     }
 
-    await this.prisma.menuRules.delete({
-      where: { id: menuRules.id },
+    await this.prisma.menuRoles.delete({
+      where: { id: menuRoles.id },
     });
     return { message: MESSAGE.OK, statusCode: HttpStatus.OK };
   }

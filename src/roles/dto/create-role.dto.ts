@@ -1,15 +1,15 @@
 import { IsJSON, IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateRuleDto {
+export class CreateRoleDto {
   @IsString()
   @IsNotEmpty()
   public designation: string;
 }
 
-export class CreateMenuRuleDto {
+export class CreateMenuRoleDto {
   @IsString()
   @IsNotEmpty()
-  public ruleId: string;
+  public roleId: string;
 
   @IsString()
   @IsNotEmpty()

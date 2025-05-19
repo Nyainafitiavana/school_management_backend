@@ -16,7 +16,7 @@ model Status {
   user              Users[]
   StudentRegister   StudentRegister[]
   SchoolYear        SchoolYear[]
-  Rules             Rules[]
+  Roles             Roles[]
   Subjects          Subjects[]
   SubjectsLevel     SubjectsLevel[]
   LevelTarif        LevelTarif[]
@@ -48,7 +48,7 @@ model Users {
 
   tokens              Token[]
   Level               Level[]
-  UsersRules          UsersRules[]
+  UsersRoles          UsersRoles[]
   SubjectsLevel       SubjectsLevel[]
   updatedAssiduities  Assiduity[]         @relation("UpdatorAssiduities")
   redactedAssiduities Assiduity[]         @relation("RedactorAssiduities")
@@ -92,38 +92,38 @@ model Menu {
   code              String?              @unique
   path              String              @unique
 
-  MenuRules         MenuRules[]
+  MenuRoles         MenuRoles[]
 }
 
-model Rules {
+model Roles {
   id                Int                 @id @default(autoincrement())
   uuid              String              @unique
   designation       String
   statusId          Int
   status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
 
-  MenuRules         MenuRules[]
-  UsersRules        UsersRules[]
+  MenuRoles         MenuRoles[]
+  UsersRoles        UsersRoles[]
 }
 
-model MenuRules {
+model MenuRoles {
   id              Int                @id @default(autoincrement())
   uuid            String             @unique
   menuId          Int
   menu            Menu               @relation(fields: [menuId], references: [id], onDelete: Cascade)
-  ruleId          Int
-  rules           Rules              @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  roleId          Int
+  roles           Roles              @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   privilege       String
 }
 
-model UsersRules {
+model UsersRoles {
   id              Int                @id @default(autoincrement())
   uuid            String             @unique
   userId          Int
   users           Users              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ruleId          Int
-  rules           Rules              @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  roleId          Int
+  roles           Roles              @relation(fields: [roleId], references: [id], onDelete: Cascade)
 }
 
 model SchoolYear {

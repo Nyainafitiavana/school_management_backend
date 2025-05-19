@@ -13,13 +13,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, CreateUserRulesDto } from './dto/create-user.dto';
+import { CreateUserDto, CreateUserRolesDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { NextFunction, Response, Request } from 'express';
 import { AuthGuard } from '../auth/auth.guards';
 import { ExecuteResponse, Paginate } from '../utils/custom.interface';
 import { Users } from '@prisma/client';
-import { IUserRules } from './IUsers';
+import { IUserRoles } from './IUsers';
 
 @Controller('/api/users')
 export class UserController {
@@ -126,47 +126,47 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('/rules')
+  @Post('/roles')
   async createMenuRule(
-    @Body() data: CreateUserRulesDto[],
+    @Body() data: CreateUserRolesDto[],
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const userRules: ExecuteResponse =
-        await this.userService.createUserRules(data);
+      const userRoles: ExecuteResponse =
+        await this.userService.createUserRoles(data);
 
-      res.status(HttpStatus.OK).json(userRules);
+      res.status(HttpStatus.OK).json(userRoles);
     } catch (error) {
       next(error);
     }
   }
 
   @UseGuards(AuthGuard)
-  @Get('/:uuid/rules')
-  async findAllUserRules(
+  @Get('/:uuid/roles')
+  async findAllUserRoles(
     @Param('uuid') uuid: string,
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
-      const userRules: IUserRules[] =
-        await this.userService.findAllUserRules(uuid);
-      res.status(HttpStatus.OK).json({ data: userRules });
+      const userRoles: IUserRoles[] =
+        await this.userService.findAllUserRoles(uuid);
+      res.status(HttpStatus.OK).json({ data: userRoles });
     } catch (error) {
       next(error);
     }
   }
   @UseGuards(AuthGuard)
-  @Delete('/rules/:uuid')
-  async deleteUserRules(
+  @Delete('/roles/:uuid')
+  async deleteUserRoles(
     @Param('uuid') uuid: string,
     @Res() res: Response,
     @Next() next: NextFunction,
   ): Promise<void> {
     try {
       const deleted: ExecuteResponse =
-        await this.userService.deleteUserRule(uuid);
+        await this.userService.deleteUserRole(uuid);
       res.status(HttpStatus.OK).json(deleted);
     } catch (error) {
       next(error);

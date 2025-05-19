@@ -1,4 +1,4 @@
-export interface IUserRules {
+export interface IUserRoles {
   uuid: string;
-  rules: { uuid: string; designation: string };
+  roles: { uuid: string; designation: string };
 }
