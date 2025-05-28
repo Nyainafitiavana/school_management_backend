@@ -41,14 +41,14 @@ ALTER SEQUENCE public."UsersRoles_id_seq"
 
 ---insert all menu---
 INSERT INTO public."Menu"
-(id, uuid, designation, path, code)
+(id, uuid, designation, path, code, order)
 VALUES
-    (1, 'f72024ea-1a9a-49d3-87ec-724e15cb11cb', 'Utilisateurs', '/utilisateurs', 'User'),
-    (2, '36fb27c3-75be-4099-98e5-613ce5e5bc06', 'Etudiants', '/etudiants', 'Student'),
-    (3, '1b96e889-efaf-45bd-ae6c-435344add7b2', 'Niveaux', '/niveaux', 'Level'),
-    (4, '03981027-e8d8-4bea-aaa6-48a2c62c8d5b', 'Matières', '/matiers', 'Subject'),
-    (5, '642b63f4-4331-4a4d-9b55-c605ca52c48f', 'Années scolaires', '/annees_scolaires', 'SchoolYear'),
-    (6, 'f7ce90e4-3773-4abc-b82a-20e7cb51779c', 'Privilèges', '/privilege', 'Privilege');
+    (1, 'f72024ea-1a9a-49d3-87ec-724e15cb11cb', 'Utilisateurs', '/utilisateurs', 'User', 2),
+    (2, '36fb27c3-75be-4099-98e5-613ce5e5bc06', 'Etudiants', '/etudiants', 'Student', 6),
+    (3, '1b96e889-efaf-45bd-ae6c-435344add7b2', 'Niveaux', '/niveaux', 'Level', 4),
+    (4, '03981027-e8d8-4bea-aaa6-48a2c62c8d5b', 'Matières', '/matiers', 'Subject', 3),
+    (5, '642b63f4-4331-4a4d-9b55-c605ca52c48f', 'Années scolaires', '/annees_scolaires', 'SchoolYear', 5),
+    (6, 'f7ce90e4-3773-4abc-b82a-20e7cb51779c', 'Rôles', '/roles', 'Role', 1);
 ALTER SEQUENCE public."Menu_id_seq"
 	RESTART 7;
 

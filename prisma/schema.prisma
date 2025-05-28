@@ -89,8 +89,9 @@ model Menu {
   id                Int                 @id @default(autoincrement())
   uuid              String              @unique
   designation       String
-  code              String?              @unique
+  code              String?             @unique
   path              String              @unique
+  order             Int?
 
   MenuRoles         MenuRoles[]
 }
