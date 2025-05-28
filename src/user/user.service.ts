@@ -283,7 +283,13 @@ export class UserService {
                     designation: true,
                     path: true,
                     code: true,
+                    order: true,
                   },
+                },
+              },
+              orderBy: {
+                menu: {
+                  order: 'asc',
                 },
               },
             },

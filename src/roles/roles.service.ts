@@ -219,6 +219,7 @@ export class RolesService {
       },
       select: {
         uuid: true,
+        privilege: true,
         menu: {
           select: {
             uuid: true,
