@@ -130,8 +130,8 @@ model UsersRoles {
 model SchoolYear {
   id                Int                 @id @default(autoincrement())
   uuid              String              @unique
-  startedYear       String
-  endYear           String              @unique
+  startedYear       Int
+  endYear           Int
   statusId          Int
   status            Status              @relation(fields: [statusId], references: [id], onDelete: Cascade)
 
