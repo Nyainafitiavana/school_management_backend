@@ -9,6 +9,7 @@ import { TaskServiceService } from './task-service.service';
 import { RulesModule } from '../roles/rules.module';
 import { LevelModule } from '../level/level.module';
 import { SubjectsModule } from '../subjects/subjects.module';
+import { MenuModule } from '../menu/menu.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SubjectsModule } from '../subjects/subjects.module';
     RulesModule,
     LevelModule,
     SubjectsModule,
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [AppService, TaskServiceService],
